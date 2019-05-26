@@ -155,12 +155,12 @@ class App extends Component {
                 let dirs = JSON.parse(dirsRequest.responseText);
                 dirs.forEach(dir => {
                     dir.subDirs.sort((subDir1, subDir2) => {
-                        const size1 = subDir1.size ? 1 : 0;
-                        const size2 = subDir2.size ? 1 : 0;
+                        const size1 = subDir1.size === null ? 0 : 1;
+                        const size2 = subDir2.size === null ? 0 : 1;
                         if (size1 == size2) {
-                            const name1 = subDir1.name.toLowerCase();
-                            const name2 = subDir2.name.toLowerCase();
-                            return name1.localeCompare(name2, undefined, { sensitivity: 'accent' })
+                            const name1 = subDir1.name;
+                            const name2 = subDir2.name;
+                            return name1.localeCompare(name2, undefined, { sensitivity: 'accent', numeric: true})
                         }
                         return size1 - size2;
                     });
