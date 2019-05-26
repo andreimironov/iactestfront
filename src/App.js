@@ -4,6 +4,7 @@ import { createAction, ActionTypes } from './store';
 import { container as Spinner } from './Spinner';
 import { container as Modal404 } from './Modal404';
 import { container as ModalFiles } from './ModalFiles';
+import { formatBytes } from './util';
 
 const serverUrl = 'http://localhost:8080';
 
@@ -74,7 +75,7 @@ class App extends Component {
                                                             <td>{dir.path}</td>
                                                             <td>{dirsCount}</td>
                                                             <td>{filesCount}</td>
-                                                            <td>{filesSize}</td>
+                                                            <td>{formatBytes(filesSize)}</td>
                                                             <td>
                                                                 <button 
                                                                     className="waves-effect waves-light btn" 
@@ -152,7 +153,18 @@ class App extends Component {
             if (readyState === 4 && status === 200) {
                 this.props.setLoading(false);
                 let dirs = JSON.parse(dirsRequest.responseText);
-                dirs.forEach(dir => console.log(dir));
+                dirs.forEach(dir => {
+                    dir.subDirs.sort((subDir1, subDir2) => {
+                        const size1 = subDir1.size ? 1 : 0;
+                        const size2 = subDir2.size ? 1 : 0;
+                        if (size1 == size2) {
+                            const name1 = subDir1.name.toLowerCase();
+                            const name2 = subDir2.name.toLowerCase();
+                            return name1.localeCompare(name2, undefined, { sensitivity: 'accent' })
+                        }
+                        return size1 - size2;
+                    });
+                });
                 this.props.setDirs(dirs);
             }
         };

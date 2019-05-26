@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { createAction, ActionTypes } from './store';
+import { formatBytes } from './util';
 
 class ModalFiles extends Component {
     render() {
@@ -26,7 +27,7 @@ class ModalFiles extends Component {
                                                         return (
                                                             <tr key={subDir.id}>
                                                                 <td>{subDir.name}</td>
-                                                                <td>{subDir.size ? subDir.size : '<DIR>'}</td>
+                                                                <td>{subDir.size === null ? '<DIR>' : formatBytes(subDir.size)}</td>
                                                             </tr>
                                                         );
                                                     }
