@@ -2,14 +2,14 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { createAction, ActionTypes } from './store';
 
-class Modal404 extends Component {
+class ModalInfo extends Component {
     render() {
         return (
             <div id='modal_404' className="modal modal-fixed-footer">
                 <div className="modal-content">
                     <div className='row'>
                         <div className='col s12'>
-                            <p>Директория {this.props.dirPath} не существует</p>
+                            <p>{this.props.message}</p>
                         </div>
                     </div>
                 </div>
@@ -37,7 +37,7 @@ class Modal404 extends Component {
         window.M.Modal.init(
             elementsModal, 
             {
-                onCloseEnd: () => this.props.setModal404State({ opened: false })
+                onCloseEnd: () => this.props.setModalInfoState({ opened: false, message: '' })
             }
         );
         this.instanceModal = window.M.Modal.getInstance(elementsModal[0]);
@@ -45,18 +45,18 @@ class Modal404 extends Component {
 }
 
 const mapStateToProps = state => ({
-    dirPath: state.dirPath,
-    opened: state.modal404State.opened
+    opened: state.modalInfoState.opened,
+    message: state.modalInfoState.message
 });
 
 const mapDispatchToProps = dispatch => ({
-    setModal404State: modal404State => dispatch(createAction(
-        ActionTypes.SET_MODAL404_STATE,
-        modal404State
+    setModalInfoState: modalInfoState => dispatch(createAction(
+        ActionTypes.SET_MODALINFO_STATE,
+        modalInfoState
     )),
 });
 
 export const container = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Modal404);
+)(ModalInfo);

@@ -64,7 +64,13 @@ class ModalFiles extends Component {
         window.M.Modal.init(
             elementsModal, 
             {
-                onCloseEnd: () => this.props.setModalFilesState({opened: false, dir: {path: '', subDirs: []}})
+                onCloseEnd: () => this.props.setModalFilesState({
+                    opened: false, 
+                    dir: {
+                        path: '', 
+                        subDirs: []
+                    }
+                })
             }
         );
         this.instanceModal = window.M.Modal.getInstance(elementsModal[0]);

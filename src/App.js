@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createAction, ActionTypes } from './store';
 import { container as Spinner } from './Spinner';
-import { container as Modal404 } from './Modal404';
+import { container as Modal404 } from './ModalInfo';
 import { container as ModalFiles } from './ModalFiles';
 import { formatBytes } from './util';
 
@@ -125,13 +125,26 @@ class App extends Component {
             if (readyState === 4) {
                 this.props.setLoading(false);
                 switch (status) {
+                    case 0:
+                        this.props.setModalInfoState({ 
+                            opened: true, 
+                            message: 'Невозможно подключиться к серверу ' + serverUrl
+                        });
+                        break;
                     case 200:
                         this.getDirs();
                         break;
                     case 404:
-                        this.props.setModal404State({ opened: true });
+                        this.props.setModalInfoState({ 
+                            opened: true, 
+                            message: 'Директория '+ this.props.dirPath + ' не существует' 
+                        });
                         break;
                     default:
+                        this.props.setModalInfoState({ 
+                            opened: true, 
+                            message: 'Ошибка при добавлении директории, ' + postDirRequest.responseText
+                        });
                         break;
                 }
                 if (status === 200) {
@@ -150,22 +163,39 @@ class App extends Component {
             const readyState = dirsRequest.readyState;
             const status = dirsRequest.status;
             console.log('dirsRequest readyState: ' + readyState + ', status: ' + status);
-            if (readyState === 4 && status === 200) {
+            if (readyState === 4) {
                 this.props.setLoading(false);
-                let dirs = JSON.parse(dirsRequest.responseText);
-                dirs.forEach(dir => {
-                    dir.subDirs.sort((subDir1, subDir2) => {
-                        const size1 = subDir1.size === null ? 0 : 1;
-                        const size2 = subDir2.size === null ? 0 : 1;
-                        if (size1 == size2) {
-                            const name1 = subDir1.name;
-                            const name2 = subDir2.name;
-                            return name1.localeCompare(name2, undefined, { sensitivity: 'accent', numeric: true})
-                        }
-                        return size1 - size2;
-                    });
-                });
-                this.props.setDirs(dirs);
+                switch (status) {
+                    case 0:
+                        this.props.setModalInfoState({ 
+                            opened: true, 
+                            message: 'Невозможно подключиться к серверу ' + serverUrl
+                        });
+                        break;
+                    case 200:
+                        let dirs = JSON.parse(dirsRequest.responseText);
+                        dirs.forEach(dir => {
+                            dir.subDirs.sort((subDir1, subDir2) => {
+                                const size1 = subDir1.size === null ? 0 : 1;
+                                const size2 = subDir2.size === null ? 0 : 1;
+                                if (size1 == size2) {
+                                    const name1 = subDir1.name;
+                                    const name2 = subDir2.name;
+                                    return name1.localeCompare(name2, undefined, { sensitivity: 'accent', numeric: true})
+                                }
+                                return size1 - size2;
+                            });
+                        });
+                        this.props.setDirs(dirs);
+                        break;
+                    default:
+                        this.props.setModalInfoState({ 
+                            opened: true, 
+                            message: 'Ошибка при загрузке директорий, ' + dirsRequest.responseText
+                        });
+                        break;
+                }
+                
             }
         };
         const dirsRequestUrl = serverUrl + '/dirs'; 
@@ -198,8 +228,8 @@ const mapDispatchToProps = dispatch => ({
         ActionTypes.SET_DIRS,
         dirs
     )),
-    setModal404State: modal404State => dispatch(createAction(
-        ActionTypes.SET_MODAL404_STATE,
+    setModalInfoState: modal404State => dispatch(createAction(
+        ActionTypes.SET_MODALINFO_STATE,
         modal404State
     )),
     setModalFilesState: modalFilesState => dispatch(createAction(
